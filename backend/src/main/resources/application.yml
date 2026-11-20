@@ -1,0 +1,37 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: library-backend
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: "jdbc:mysql://localhost:3306/library?serverTimezone=Asia/Shanghai&characterEncoding=utf-8&useSSL=false&allowPublicKeyRetrieval=true"
+    username: root
+    password: "Ab#123456"
+
+easy-query:
+  enable: true
+  database: mysql
+  name-conversion: underlined
+  print-sql: true
+
+library:
+  # 借期天数（默认 60 天）
+  loan-days: 60
+  # 读者同时在借上限（默认 10 册）
+  max-active-loans: 10
+  snowflake:
+    # 雪花 ID 机器号（多实例部署时每台机器需不同）
+    worker-id: 1
+  # 上架照片本地存储目录（相对运行目录）
+  upload-dir: uploads/shelving/
+  recognizer:
+    # 书籍照片识别实现：qwen（通义千问视觉模型）| mock（模拟识别，测试用）
+    provider: qwen
+    qwen:
+      # 通义千问 API Key：经环境变量 DASHSCOPE_API_KEY 注入（勿将明文 Key 提交到仓库）
+      api-key: ${DASHSCOPE_API_KEY:}
+      # 视觉模型：qwen-vl-max 已于 2026-10 下线，qwen3.6-flash 为当前视觉替代模型
+      model: qwen3.6-flash
+      endpoint: https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions

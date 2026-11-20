@@ -1,0 +1,19 @@
+# Java / Maven 构建产物
+backend/target/
+
+# Node 依赖与构建产物
+node_modules/
+dist/
+unpackage/
+
+# 运行时上传的照片（上架现场照，不入库）
+backend/uploads/
+backend/uploads-test/
+
+# IDE 与临时文件
+.idea/
+*.iml
+.vscode/
+.tmp-eq/
+Thumbs.db
+.DS_Store

@@ -1,0 +1,67 @@
+{
+  "pages": [
+    {
+      "path": "pages/index/index",
+      "style": {
+        "navigationBarTitleText": "图书馆服务"
+      }
+    },
+    {
+      "path": "pages/book-search/book-search",
+      "style": {
+        "navigationBarTitleText": "书籍查询"
+      }
+    },
+    {
+      "path": "pages/my-loans/my-loans",
+      "style": {
+        "navigationBarTitleText": "我的在借"
+      }
+    },
+    {
+      "path": "pages/shelving/shelving",
+      "style": {
+        "navigationBarTitleText": "上架办理"
+      }
+    },
+    {
+      "path": "pages/staff-entry/staff-entry",
+      "style": {
+        "navigationBarTitleText": "拍照录入"
+      }
+    }
+  ],
+  "globalStyle": {
+    "navigationBarTextStyle": "black",
+    "navigationBarTitleText": "图书馆",
+    "navigationBarBackgroundColor": "#ffffff",
+    "backgroundColor": "#f5f6f8"
+  },
+  "tabBar": {
+    "color": "#909399",
+    "selectedColor": "#409eff",
+    "backgroundColor": "#ffffff",
+    "list": [
+      {
+        "pagePath": "pages/index/index",
+        "text": "首页"
+      },
+      {
+        "pagePath": "pages/book-search/book-search",
+        "text": "查书"
+      },
+      {
+        "pagePath": "pages/my-loans/my-loans",
+        "text": "在借"
+      },
+      {
+        "pagePath": "pages/shelving/shelving",
+        "text": "上架"
+      },
+      {
+        "pagePath": "pages/staff-entry/staff-entry",
+        "text": "录入"
+      }
+    ]
+  }
+}

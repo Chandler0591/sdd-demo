@@ -1,0 +1,22 @@
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: "jdbc:mysql://localhost:3306/library_test?serverTimezone=Asia/Shanghai&characterEncoding=utf-8&useSSL=false&allowPublicKeyRetrieval=true"
+    username: root
+    password: "Ab#123456"
+
+easy-query:
+  enable: true
+  database: mysql
+  name-conversion: underlined
+  print-sql: false
+
+library:
+  loan-days: 60
+  max-active-loans: 10
+  snowflake:
+    worker-id: 1
+  upload-dir: uploads-test/shelving/
+  recognizer:
+    # 测试环境固定用模拟识别，避免依赖外部千问 API
+    provider: mock
