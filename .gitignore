@@ -10,6 +10,9 @@ unpackage/
 backend/uploads/
 backend/uploads-test/
 
+# 后端运行日志
+backend/logs/
+
 # IDE 与临时文件
 .idea/
 *.iml
