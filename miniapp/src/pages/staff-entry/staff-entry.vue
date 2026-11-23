@@ -321,8 +321,8 @@ function reset() {
 }
 .photo-area {
   height: 360rpx;
-  background: #f5f6f8;
-  border: 2rpx dashed #d0d3d9;
+  background: var(--bg-input);
+  border: 2rpx dashed var(--border-strong);
   border-radius: 12rpx;
   display: flex;
   align-items: center;
@@ -335,11 +335,11 @@ function reset() {
   height: 100%;
 }
 .photo-placeholder {
-  color: #909399;
+  color: var(--text-caption);
   font-size: 26rpx;
 }
 .btn-primary {
-  background: #409eff;
+  background: var(--brand-600);
   color: #fff;
   border: none;
   font-size: 28rpx;
@@ -352,36 +352,39 @@ function reset() {
 }
 .form-label {
   width: 100rpx;
-  color: #606266;
+  color: var(--text-secondary);
   font-size: 26rpx;
   flex-shrink: 0;
 }
 .form-input {
   flex: 1;
-  background: #f5f6f8;
+  background: var(--bg-input);
   border-radius: 12rpx;
   padding: 16rpx 20rpx;
   font-size: 28rpx;
 }
 .picker {
-  color: #303133;
+  color: var(--text-primary);
 }
 .btn-gen {
-  background: #f5f6f8;
-  color: #409eff;
-  border: 1rpx solid #dcdfe6;
+  background: var(--bg-input);
+  color: var(--brand-600);
+  border: 1rpx solid var(--border-strong);
   flex-shrink: 0;
 }
 .dup-tip {
   margin: -8rpx 0 20rpx 116rpx;
   font-size: 22rpx;
-  color: #e6a23c;
+  color: var(--warning);
+  background: var(--warning-bg);
+  padding: 8rpx 16rpx;
+  border-radius: 8rpx;
   line-height: 32rpx;
 }
 .hint {
   margin-top: 16rpx;
   font-size: 22rpx;
-  color: #c0c4cc;
+  color: var(--text-disabled);
   line-height: 36rpx;
 }
 </style>

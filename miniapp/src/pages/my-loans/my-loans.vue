@@ -100,7 +100,7 @@ onMounted(search)
   font-size: 28rpx;
 }
 .search-btn {
-  background: #409eff;
+  background: var(--brand-600);
   color: #fff;
   border: none;
 }
@@ -119,11 +119,11 @@ onMounted(search)
 }
 .reader-no {
   font-size: 24rpx;
-  color: #909399;
+  color: var(--text-caption);
 }
 .tip {
   text-align: center;
-  color: #909399;
+  color: var(--text-caption);
   padding: 48rpx 0;
 }
 .loan-list {
@@ -152,31 +152,31 @@ onMounted(search)
   border-radius: 999rpx;
 }
 .tag-ok {
-  background: #e8f7ef;
-  color: #2f9e63;
+  background: var(--success-bg);
+  color: var(--success);
 }
 .tag-overdue {
-  background: #fdeaea;
-  color: #d03050;
+  background: var(--danger-bg);
+  color: var(--danger);
 }
 .loan-line {
   display: flex;
   gap: 24rpx;
   font-size: 26rpx;
-  color: #606266;
+  color: var(--text-secondary);
   line-height: 44rpx;
 }
 .label {
   width: 120rpx;
-  color: #909399;
+  color: var(--text-caption);
   flex-shrink: 0;
 }
 .overdue {
-  color: #d03050;
+  color: var(--danger);
 }
 .tip-line {
   margin-top: 16rpx;
   font-size: 22rpx;
-  color: #c0c4cc;
+  color: var(--text-disabled);
 }
 </style>

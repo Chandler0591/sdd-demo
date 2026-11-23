@@ -37,7 +37,8 @@
         </view>
         <view class="book-line">
           <text class="label">位置</text>
-          <text>{{ book.location || '待上架' }}</text>
+          <text v-if="book.location">{{ book.location }}</text>
+          <text v-else class="warn">待上架</text>
         </view>
       </view>
     </view>
@@ -90,13 +91,13 @@ async function search() {
   font-size: 28rpx;
 }
 .search-btn {
-  background: #409eff;
+  background: var(--brand-600);
   color: #fff;
   border: none;
 }
 .tip {
   text-align: center;
-  color: #909399;
+  color: var(--text-caption);
   padding: 48rpx 0;
 }
 .book-list {
@@ -125,23 +126,26 @@ async function search() {
   border-radius: 999rpx;
 }
 .tag-ok {
-  background: #e8f7ef;
-  color: #2f9e63;
+  background: var(--success-bg);
+  color: var(--success);
 }
 .tag-off {
-  background: #f4f4f5;
-  color: #909399;
+  background: var(--info-bg);
+  color: var(--info);
 }
 .book-line {
   display: flex;
   gap: 24rpx;
   font-size: 26rpx;
-  color: #606266;
+  color: var(--text-secondary);
   line-height: 44rpx;
 }
 .label {
   width: 88rpx;
-  color: #909399;
+  color: var(--text-caption);
   flex-shrink: 0;
+}
+.warn {
+  color: var(--warning);
 }
 </style>

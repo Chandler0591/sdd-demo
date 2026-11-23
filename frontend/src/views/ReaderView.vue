@@ -3,13 +3,13 @@
     <el-card class="mb">
       <el-form :inline="true">
         <el-form-item label="借书证号">
-          <el-input v-model="query.cardNo" clearable placeholder="精确匹配" style="width: 180px" />
+          <el-input v-model="query.cardNo" clearable placeholder="精确匹配" style="width: 180px" @keyup.enter="search" />
         </el-form-item>
         <el-form-item label="姓名">
-          <el-input v-model="query.name" clearable placeholder="模糊匹配" style="width: 140px" />
+          <el-input v-model="query.name" clearable placeholder="模糊匹配" style="width: 140px" @keyup.enter="search" />
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" @click="search">检索</el-button>
+          <el-button type="primary" :icon="Search" @click="search">检索</el-button>
           <el-button @click="reset">重置</el-button>
         </el-form-item>
       </el-form>
@@ -19,13 +19,17 @@
       <template #header>
         <div class="header-row">
           <span>读者列表</span>
-          <el-button type="success" @click="openCreate">注册读者</el-button>
+          <el-button type="success" :icon="Plus" @click="openCreate">注册读者</el-button>
         </div>
       </template>
-      <el-table :data="readers" v-loading="loading">
+      <el-table :data="readers" v-loading="loading" empty-text="暂无读者，点击右上角注册读者">
         <el-table-column prop="cardNo" label="借书证号" width="180" />
         <el-table-column prop="name" label="姓名" width="140" />
-        <el-table-column prop="phone" label="联系方式" width="160" />
+        <el-table-column label="联系方式" width="160">
+          <template #default="{ row }">
+            <span :class="row.phone ? '' : 'muted'">{{ row.phone || '--' }}</span>
+          </template>
+        </el-table-column>
         <el-table-column label="状态" width="100">
           <template #default="{ row }">
             <el-tag :type="row.active ? 'success' : 'info'">{{ row.active ? '有效' : '已注销' }}</el-tag>
@@ -62,7 +66,7 @@
       </el-form>
       <template #footer>
         <el-button @click="dialogVisible = false">取消</el-button>
-        <el-button type="primary" @click="submit">确定</el-button>
+        <el-button type="primary" :loading="submitting" @click="submit">确定</el-button>
       </template>
     </el-dialog>
   </div>
@@ -71,6 +75,7 @@
 <script setup lang="ts">
 import { onMounted, reactive, ref } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
+import { Plus, Search } from '@element-plus/icons-vue'
 import http from '../api'
 import type { PageResult, ReaderVO } from '../types'
 
@@ -83,6 +88,7 @@ const loading = ref(false)
 const query = reactive({ cardNo: '', name: '' })
 
 const dialogVisible = ref(false)
+const submitting = ref(false)
 const editingId = ref('')
 const form = reactive({ cardNo: '', name: '', phone: '' })
 
@@ -123,19 +129,24 @@ function openEdit(row: ReaderVO) {
 }
 
 async function submit() {
-  if (editingId.value) {
-    await http.put(`/readers/${editingId.value}`, {
-      cardNo: form.cardNo.trim(),
-      name: form.name,
-      phone: form.phone
-    })
-    ElMessage.success('修改成功')
-  } else {
-    await http.post('/readers', { cardNo: form.cardNo.trim(), name: form.name, phone: form.phone })
-    ElMessage.success('注册成功')
+  submitting.value = true
+  try {
+    if (editingId.value) {
+      await http.put(`/readers/${editingId.value}`, {
+        cardNo: form.cardNo.trim(),
+        name: form.name,
+        phone: form.phone
+      })
+      ElMessage.success('修改成功')
+    } else {
+      await http.post('/readers', { cardNo: form.cardNo.trim(), name: form.name, phone: form.phone })
+      ElMessage.success('注册成功')
+    }
+    dialogVisible.value = false
+    search()
+  } finally {
+    submitting.value = false
   }
-  dialogVisible.value = false
-  search()
 }
 
 async function deactivate(row: ReaderVO) {

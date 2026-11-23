@@ -3,13 +3,13 @@
     <el-card class="mb">
       <el-form :inline="true">
         <el-form-item label="ISBN">
-          <el-input v-model="query.isbn" clearable placeholder="精确匹配" style="width: 160px" />
+          <el-input v-model="query.isbn" clearable placeholder="精确匹配" style="width: 160px" @keyup.enter="search" />
         </el-form-item>
         <el-form-item label="书名">
-          <el-input v-model="query.title" clearable placeholder="模糊匹配" style="width: 160px" />
+          <el-input v-model="query.title" clearable placeholder="模糊匹配" style="width: 160px" @keyup.enter="search" />
         </el-form-item>
         <el-form-item label="作者">
-          <el-input v-model="query.author" clearable placeholder="模糊匹配" style="width: 140px" />
+          <el-input v-model="query.author" clearable placeholder="模糊匹配" style="width: 140px" @keyup.enter="search" />
         </el-form-item>
         <el-form-item label="分类">
           <el-tree-select
@@ -25,7 +25,7 @@
           />
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" @click="search">检索</el-button>
+          <el-button type="primary" :icon="Search" @click="search">检索</el-button>
           <el-button @click="reset">重置</el-button>
         </el-form-item>
       </el-form>
@@ -35,19 +35,37 @@
       <template #header>
         <div class="header-row">
           <span>图书列表</span>
-          <el-button type="success" @click="openCreate">新增图书</el-button>
+          <el-button type="success" :icon="Plus" @click="openCreate">新增图书</el-button>
         </div>
       </template>
-      <el-table :data="books" v-loading="loading">
+      <el-table :data="books" v-loading="loading" empty-text="暂无图书，可调整检索条件或点击右上角新增">
         <el-table-column prop="isbn" label="ISBN" width="150" />
         <el-table-column prop="title" label="书名" min-width="180" />
         <el-table-column prop="author" label="作者" width="120" />
         <el-table-column prop="categoryName" label="分类" width="100" />
-        <el-table-column prop="totalCopies" label="馆藏总量" width="90" />
-        <el-table-column prop="availableCopies" label="可借" width="70" />
-        <el-table-column prop="pendingShelving" label="待上架" width="80" />
-        <el-table-column label="位置" width="110">
-          <template #default="{ row }">{{ row.location || '待上架' }}</template>
+        <el-table-column label="馆藏总量" width="90">
+          <template #default="{ row }"><span class="num">{{ row.totalCopies }}</span></template>
+        </el-table-column>
+        <el-table-column label="可借" width="80">
+          <template #default="{ row }">
+            <el-tag :type="row.availableCopies > 0 ? 'success' : 'info'" size="small" effect="plain" class="num">
+              {{ row.availableCopies }}
+            </el-tag>
+          </template>
+        </el-table-column>
+        <el-table-column label="待上架" width="90">
+          <template #default="{ row }">
+            <el-tag v-if="row.pendingShelving > 0" type="warning" size="small" effect="plain" class="num">
+              {{ row.pendingShelving }}
+            </el-tag>
+            <span v-else class="muted num">0</span>
+          </template>
+        </el-table-column>
+        <el-table-column label="位置" width="120">
+          <template #default="{ row }">
+            <span v-if="row.location">{{ row.location }}</span>
+            <el-tag v-else type="warning" size="small" effect="plain">待上架</el-tag>
+          </template>
         </el-table-column>
         <el-table-column label="操作" width="150" fixed="right">
           <template #default="{ row }">
@@ -103,7 +121,7 @@
       </el-form>
       <template #footer>
         <el-button @click="dialogVisible = false">取消</el-button>
-        <el-button type="primary" @click="submit">确定</el-button>
+        <el-button type="primary" :loading="submitting" @click="submit">确定</el-button>
       </template>
     </el-dialog>
   </div>
@@ -112,6 +130,7 @@
 <script setup lang="ts">
 import { computed, onMounted, reactive, ref } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
+import { Plus, Search } from '@element-plus/icons-vue'
 import http from '../api'
 import type { BookVO, DictVO, PageResult } from '../types'
 
@@ -126,6 +145,7 @@ const loading = ref(false)
 const query = reactive({ isbn: '', title: '', author: '', categoryCode: '' })
 
 const dialogVisible = ref(false)
+const submitting = ref(false)
 const editingId = ref('')
 const dupMode = ref(false)
 const dupBook = ref<BookVO | null>(null)
@@ -214,29 +234,34 @@ async function checkIsbn() {
 }
 
 async function submit() {
-  if (dupMode.value && dupBook.value) {
-    await http.post(`/books/${dupBook.value.id}/add-copies`, { copies: form.totalCopies })
-    ElMessage.success('数量叠加成功，新增副本已进入待上架清单')
-  } else if (editingId.value) {
-    await http.put(`/books/${editingId.value}`, {
-      isbn: form.isbn.trim(),
-      title: form.title,
-      author: form.author,
-      categoryCode: form.categoryCode
-    })
-    ElMessage.success('修改成功')
-  } else {
-    await http.post('/books', {
-      isbn: form.isbn.trim(),
-      title: form.title,
-      author: form.author,
-      categoryCode: form.categoryCode,
-      totalCopies: form.totalCopies
-    })
-    ElMessage.success('录入成功，图书已进入待上架清单，请到上架办理确认上架')
+  submitting.value = true
+  try {
+    if (dupMode.value && dupBook.value) {
+      await http.post(`/books/${dupBook.value.id}/add-copies`, { copies: form.totalCopies })
+      ElMessage.success('数量叠加成功，新增副本已进入待上架清单')
+    } else if (editingId.value) {
+      await http.put(`/books/${editingId.value}`, {
+        isbn: form.isbn.trim(),
+        title: form.title,
+        author: form.author,
+        categoryCode: form.categoryCode
+      })
+      ElMessage.success('修改成功')
+    } else {
+      await http.post('/books', {
+        isbn: form.isbn.trim(),
+        title: form.title,
+        author: form.author,
+        categoryCode: form.categoryCode,
+        totalCopies: form.totalCopies
+      })
+      ElMessage.success('录入成功，图书已进入待上架清单，请到上架办理确认上架')
+    }
+    dialogVisible.value = false
+    search()
+  } finally {
+    submitting.value = false
   }
-  dialogVisible.value = false
-  search()
 }
 
 async function remove(row: BookVO) {

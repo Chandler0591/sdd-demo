@@ -35,11 +35,11 @@
     "navigationBarTextStyle": "black",
     "navigationBarTitleText": "图书馆",
     "navigationBarBackgroundColor": "#ffffff",
-    "backgroundColor": "#f5f6f8"
+    "backgroundColor": "#f3f6f4"
   },
   "tabBar": {
-    "color": "#909399",
-    "selectedColor": "#409eff",
+    "color": "#7c8d85",
+    "selectedColor": "#1f7352",
     "backgroundColor": "#ffffff",
     "list": [
       {

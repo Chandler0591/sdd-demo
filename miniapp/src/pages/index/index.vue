@@ -41,7 +41,7 @@ function go(url) {
   padding: 24rpx;
 }
 .banner {
-  background: linear-gradient(135deg, #409eff, #79bbff);
+  background: linear-gradient(135deg, var(--brand-500), var(--brand-700));
   border-radius: 16rpx;
   padding: 48rpx 32rpx;
   margin-bottom: 24rpx;
@@ -70,6 +70,7 @@ function go(url) {
   display: flex;
   flex-direction: column;
   gap: 8rpx;
+  box-shadow: 0 4rpx 16rpx rgba(23, 92, 66, 0.06);
 }
 .cell-icon {
   font-size: 48rpx;
@@ -80,6 +81,6 @@ function go(url) {
 }
 .cell-desc {
   font-size: 24rpx;
-  color: #909399;
+  color: var(--text-caption);
 }
 </style>

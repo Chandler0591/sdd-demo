@@ -1,7 +1,10 @@
 <template>
   <el-container class="app-root">
     <el-aside width="200px" class="app-aside">
-      <div class="app-logo">图书管理系统</div>
+      <div class="app-logo">
+        <div class="logo-icon"><el-icon><Reading /></el-icon></div>
+        <span>图书管理系统</span>
+      </div>
       <el-menu :default-active="$route.path" router>
         <el-menu-item index="/books">
           <el-icon><Notebook /></el-icon>
@@ -51,7 +54,7 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { Box, Collection, Notebook, Switch, User } from '@element-plus/icons-vue'
+import { Box, Collection, Notebook, Reading, Switch, User } from '@element-plus/icons-vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -102,30 +105,68 @@ body,
 }
 
 .app-aside {
-  border-right: 1px solid var(--el-border-color);
+  background: #fff;
+  border-right: 1px solid var(--border-weak);
 }
 
 .app-logo {
-  height: 56px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 20px;
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--brand-700);
+  border-bottom: 1px solid var(--border-weak);
+}
+
+.logo-icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, var(--brand-500), var(--brand-700));
+  color: #fff;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 16px;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+/* 侧栏菜单：选中项墨绿浅底圆角 */
+.app-aside :deep(.el-menu) {
+  border-right: none;
+  padding: 8px;
+}
+
+.app-aside :deep(.el-menu-item) {
+  border-radius: 8px;
+  margin-bottom: 4px;
+  height: 44px;
+  color: var(--text-secondary);
+}
+
+.app-aside :deep(.el-menu-item:hover) {
+  background: var(--bg-tint);
+}
+
+.app-aside :deep(.el-menu-item.is-active) {
+  background: var(--brand-50);
+  color: var(--brand-700);
   font-weight: 600;
-  border-bottom: 1px solid var(--el-border-color);
 }
 
 .app-main {
-  background: #f5f7fa;
+  background: var(--bg-page);
   display: flex;
   flex-direction: column;
   overflow: hidden;
 }
 
 .app-tabs {
-  background: #fff;
-  padding: 0 12px;
-  border-radius: 4px;
+  background: transparent;
+  padding: 0 16px;
   flex-shrink: 0;
 }
 
@@ -137,5 +178,6 @@ body,
   flex: 1;
   overflow: auto;
   margin-top: 12px;
+  padding: 0 16px 16px;
 }
 </style>

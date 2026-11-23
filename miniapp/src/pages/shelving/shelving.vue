@@ -260,7 +260,7 @@ onShow(load)
 }
 .tip {
   text-align: center;
-  color: #909399;
+  color: var(--text-caption);
   padding: 48rpx 0;
 }
 .book-list {
@@ -289,10 +289,10 @@ onShow(load)
 }
 .book-sub {
   font-size: 22rpx;
-  color: #909399;
+  color: var(--text-caption);
 }
 .btn-ok {
-  background: #409eff;
+  background: var(--brand-600);
   color: #fff;
   border: none;
 }
@@ -309,7 +309,7 @@ onShow(load)
 }
 .form-book {
   font-size: 24rpx;
-  color: #909399;
+  color: var(--text-caption);
   margin-bottom: 20rpx;
 }
 .form-item {
@@ -317,21 +317,21 @@ onShow(load)
 }
 .form-label {
   display: block;
-  color: #606266;
+  color: var(--text-secondary);
   font-size: 26rpx;
   margin-bottom: 10rpx;
 }
 .picker-box {
-  background: #f5f6f8;
+  background: var(--bg-input);
   border-radius: 12rpx;
   padding: 14rpx 20rpx;
   font-size: 26rpx;
-  color: #303133;
+  color: var(--text-primary);
 }
 .photo-area {
   height: 300rpx;
-  background: #f5f6f8;
-  border: 2rpx dashed #d0d3d9;
+  background: var(--bg-input);
+  border: 2rpx dashed var(--border-strong);
   border-radius: 12rpx;
   display: flex;
   align-items: center;
@@ -343,11 +343,11 @@ onShow(load)
   height: 100%;
 }
 .photo-placeholder {
-  color: #909399;
+  color: var(--text-caption);
   font-size: 26rpx;
 }
 .form-input {
-  background: #f5f6f8;
+  background: var(--bg-input);
   border-radius: 12rpx;
   padding: 14rpx 20rpx;
   font-size: 28rpx;
@@ -355,7 +355,7 @@ onShow(load)
 .hint {
   margin-left: 12rpx;
   font-size: 22rpx;
-  color: #c0c4cc;
+  color: var(--text-disabled);
 }
 .btn-row {
   display: flex;
@@ -364,17 +364,17 @@ onShow(load)
 }
 .btn-plain {
   background: #fff;
-  color: #606266;
-  border: 1rpx solid #dcdfe6;
+  color: var(--text-secondary);
+  border: 1rpx solid var(--border-strong);
 }
 .btn-primary {
-  background: #409eff;
+  background: var(--brand-600);
   color: #fff;
   border: none;
 }
 .hint-line {
   margin-top: 12rpx;
   font-size: 22rpx;
-  color: #c0c4cc;
+  color: var(--text-disabled);
 }
 </style>

@@ -6,7 +6,7 @@
           <span>系统字典（分类等业务下拉选项）</span>
           <div>
             <el-button size="small" @click="load">刷新</el-button>
-            <el-button size="small" type="success" @click="openCreate(null)">新增分类</el-button>
+            <el-button size="small" type="success" :icon="Plus" @click="openCreate(null)">新增分类</el-button>
           </div>
         </div>
       </template>
@@ -16,6 +16,7 @@
         row-key="id"
         :tree-props="{ children: 'children' }"
         default-expand-all
+        empty-text="暂无字典项"
       >
         <el-table-column prop="code" label="编码" width="180" />
         <el-table-column prop="name" label="名称" min-width="160" />
@@ -46,7 +47,7 @@
       </el-form>
       <template #footer>
         <el-button @click="dialogVisible = false">取消</el-button>
-        <el-button type="primary" @click="submit">确定</el-button>
+        <el-button type="primary" :loading="submitting" @click="submit">确定</el-button>
       </template>
     </el-dialog>
   </div>
@@ -55,6 +56,7 @@
 <script setup lang="ts">
 import { computed, onMounted, reactive, ref } from 'vue'
 import { ElMessage } from 'element-plus'
+import { Plus } from '@element-plus/icons-vue'
 import http from '../api'
 import type { DictVO } from '../types'
 
@@ -62,6 +64,7 @@ const tree = ref<DictVO[]>([])
 const loading = ref(false)
 
 const dialogVisible = ref(false)
+const submitting = ref(false)
 const editingId = ref('')
 const parent = ref<DictVO | null>(null)
 const form = reactive({ code: '', name: '', pcode: '', sortOrder: 0 })
@@ -99,22 +102,27 @@ function openEdit(row: DictVO) {
 }
 
 async function submit() {
-  const payload = {
-    code: form.code.trim(),
-    name: form.name,
-    pcode: form.pcode,
-    sortOrder: form.sortOrder
+  submitting.value = true
+  try {
+    const payload = {
+      code: form.code.trim(),
+      name: form.name,
+      pcode: form.pcode,
+      sortOrder: form.sortOrder
+    }
+    if (editingId.value) {
+      // 编辑仅改名称 / 排序，父级保持原值（code 创建后只读）
+      await http.put(`/dicts/${editingId.value}`, { name: payload.name, pcode: payload.pcode, sortOrder: payload.sortOrder })
+      ElMessage.success('修改成功')
+    } else {
+      await http.post('/dicts', payload)
+      ElMessage.success('新增成功')
+    }
+    dialogVisible.value = false
+    await load()
+  } finally {
+    submitting.value = false
   }
-  if (editingId.value) {
-    // 编辑仅改名称 / 排序，父级保持原值（code 创建后只读）
-    await http.put(`/dicts/${editingId.value}`, { name: payload.name, pcode: payload.pcode, sortOrder: payload.sortOrder })
-    ElMessage.success('修改成功')
-  } else {
-    await http.post('/dicts', payload)
-    ElMessage.success('新增成功')
-  }
-  dialogVisible.value = false
-  await load()
 }
 
 onMounted(load)

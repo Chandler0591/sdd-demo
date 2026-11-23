@@ -13,7 +13,11 @@
             <el-table-column prop="title" label="书名" min-width="180" />
             <el-table-column prop="isbn" label="ISBN" width="160" />
             <el-table-column prop="categoryName" label="分类" width="100" />
-            <el-table-column prop="pendingShelving" label="待上架数量" width="110" />
+            <el-table-column label="待上架数量" width="110">
+              <template #default="{ row }">
+                <el-tag type="warning" size="small" effect="plain" class="num">{{ row.pendingShelving }}</el-tag>
+              </template>
+            </el-table-column>
             <el-table-column label="操作" width="140" fixed="right">
               <template #default="{ row }">
                 <el-button size="small" type="primary" @click="openConfirm(row)">上架确认</el-button>
@@ -47,7 +51,9 @@
                 />
               </template>
             </el-table-column>
-            <el-table-column prop="shelvedCount" label="本次册数" width="90" />
+            <el-table-column label="本次册数" width="90">
+              <template #default="{ row }"><span class="num">{{ row.shelvedCount }}</span></template>
+            </el-table-column>
             <el-table-column prop="operator" label="操作人" width="100" />
             <el-table-column label="上架时间" width="170">
               <template #default="{ row }">{{ formatTime(row.shelvedAt) }}</template>
@@ -67,10 +73,10 @@
         <el-card>
           <el-form :inline="true">
             <el-form-item label="书名">
-              <el-input v-model="recordsQuery.title" clearable placeholder="模糊匹配" style="width: 160px" />
+              <el-input v-model="recordsQuery.title" clearable placeholder="模糊匹配" style="width: 160px" @keyup.enter="searchRecords" />
             </el-form-item>
             <el-form-item label="操作人">
-              <el-input v-model="recordsQuery.operator" clearable placeholder="模糊匹配" style="width: 140px" />
+              <el-input v-model="recordsQuery.operator" clearable placeholder="模糊匹配" style="width: 140px" @keyup.enter="searchRecords" />
             </el-form-item>
             <el-form-item>
               <el-button type="primary" @click="searchRecords">检索</el-button>
@@ -84,7 +90,9 @@
             <el-table-column prop="bookTitle" label="书名" min-width="180" />
             <el-table-column prop="bookIsbn" label="ISBN" width="160" />
             <el-table-column prop="location" label="位置" width="150" />
-            <el-table-column prop="shelvedCount" label="本次册数" width="90" />
+            <el-table-column label="本次册数" width="90">
+              <template #default="{ row }"><span class="num">{{ row.shelvedCount }}</span></template>
+            </el-table-column>
             <el-table-column prop="operator" label="操作人" width="100" />
             <el-table-column label="现场照片" width="110">
               <template #default="{ row }">
@@ -158,7 +166,7 @@
       </el-form>
       <template #footer>
         <el-button @click="dialogVisible = false">取消</el-button>
-        <el-button type="primary" :disabled="uploading" @click="submit">确认上架</el-button>
+        <el-button type="primary" :loading="submitting" :disabled="uploading" @click="submit">确认上架</el-button>
       </template>
     </el-dialog>
 
@@ -183,7 +191,7 @@
       </el-form>
       <template #footer>
         <el-button @click="rejectVisible = false">取消</el-button>
-        <el-button type="danger" @click="submitReject">确认驳回</el-button>
+        <el-button type="danger" :loading="rejecting" @click="submitReject">确认驳回</el-button>
       </template>
     </el-dialog>
   </div>
@@ -204,6 +212,7 @@ const locationTree = ref<DictVO[]>([])
 
 const dialogVisible = ref(false)
 const uploading = ref(false)
+const submitting = ref(false)
 const currentBook = ref<BookVO | null>(null)
 const form = reactive({ locationCode: '', photoPath: '', operator: '', count: 1 })
 
@@ -219,6 +228,7 @@ const recordsQuery = reactive({ title: '', operator: '' })
 /** 待审核页签 */
 const reviews = ref<ShelvingRecordVO[]>([])
 const reviewsLoading = ref(false)
+const rejecting = ref(false)
 const rejectVisible = ref(false)
 const rejectRow = ref<ShelvingRecordVO | null>(null)
 const rejectForm = reactive({ reviewer: '', reason: '' })
@@ -305,20 +315,25 @@ async function doUpload(options: UploadRequestOptions) {
 
 async function submit() {
   if (!currentBook.value) return
-  // 树形下拉 value 为字典 code，提交时映射为「区 排 号」完整路径名（上架记录与图书当前位置存完整名称）
-  const locationName = findPathName(form.locationCode, locationTree.value)
-  await http.post('/shelvings/confirm', {
-    bookId: currentBook.value.id,
-    location: locationName,
-    photoPath: form.photoPath,
-    operator: form.operator.trim(),
-    count: form.count
-  })
-  ElMessage.success('上架确认成功，已提交审核')
-  dialogVisible.value = false
-  await load()
-  await loadRecords()
-  await loadReviews()
+  submitting.value = true
+  try {
+    // 树形下拉 value 为字典 code，提交时映射为「区 排 号」完整路径名（上架记录与图书当前位置存完整名称）
+    const locationName = findPathName(form.locationCode, locationTree.value)
+    await http.post('/shelvings/confirm', {
+      bookId: currentBook.value.id,
+      location: locationName,
+      photoPath: form.photoPath,
+      operator: form.operator.trim(),
+      count: form.count
+    })
+    ElMessage.success('上架确认成功，已提交审核')
+    dialogVisible.value = false
+    await load()
+    await loadRecords()
+    await loadReviews()
+  } finally {
+    submitting.value = false
+  }
 }
 
 /** 加载待审核清单（待审核记录按上架时间倒序） */
@@ -334,15 +349,19 @@ async function loadReviews() {
 
 /** 审核通过：图书恢复可借并记录当前位置（审核人必填） */
 async function approve(row: ShelvingRecordVO) {
-  const { value } = await ElMessageBox.prompt('请输入审核人姓名', '审核通过', {
-    confirmButtonText: '确认通过',
-    cancelButtonText: '取消',
-    inputPlaceholder: '审核人姓名'
-  })
-  await http.post(`/shelvings/reviews/${row.id}/approve`, { reviewer: value.trim() })
-  ElMessage.success('审核通过，图书已恢复可借')
-  await loadReviews()
-  await load()
+  try {
+    const { value } = await ElMessageBox.prompt('请输入审核人姓名', '审核通过', {
+      confirmButtonText: '确认通过',
+      cancelButtonText: '取消',
+      inputPlaceholder: '审核人姓名'
+    })
+    await http.post(`/shelvings/reviews/${row.id}/approve`, { reviewer: value.trim() })
+    ElMessage.success('审核通过，图书已恢复可借')
+    await loadReviews()
+    await load()
+  } catch {
+    // 取消或请求失败
+  }
 }
 
 /** 打开驳回弹窗 */
@@ -358,14 +377,19 @@ async function submitReject() {
     ElMessage.warning('请填写审核人')
     return
   }
-  await http.post(`/shelvings/reviews/${rejectRow.value.id}/reject`, {
-    reviewer: rejectForm.reviewer.trim(),
-    reason: rejectForm.reason.trim() || undefined
-  })
-  ElMessage.success('已驳回，图书回到待上架清单')
-  rejectVisible.value = false
-  await loadReviews()
-  await load()
+  rejecting.value = true
+  try {
+    await http.post(`/shelvings/reviews/${rejectRow.value.id}/reject`, {
+      reviewer: rejectForm.reviewer.trim(),
+      reason: rejectForm.reason.trim() || undefined
+    })
+    ElMessage.success('已驳回，图书回到待上架清单')
+    rejectVisible.value = false
+    await loadReviews()
+    await load()
+  } finally {
+    rejecting.value = false
+  }
 }
 
 function formatTime(value: string) {
@@ -403,18 +427,18 @@ onMounted(() => {
   margin-top: 8px;
   width: 160px;
   height: 120px;
-  border-radius: 4px;
+  border-radius: var(--radius-input);
 }
 
 .record-photo {
   width: 72px;
   height: 54px;
-  border-radius: 4px;
+  border-radius: var(--radius-tag);
 }
 
 .hint {
   margin-left: 8px;
-  color: #909399;
+  color: var(--text-caption);
   font-size: 12px;
 }
 </style>
